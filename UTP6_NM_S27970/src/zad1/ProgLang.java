@@ -4,19 +4,17 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
-import java.util.function.Predicate;
 
 public class ProgLang {
-    private final Map<String, List<String>> langsMap = new HashMap<>();
-    private final Map<String, List<String>> progsMap = new HashMap<>();
-
+    private final Map<String, List<String>> langsMap = new LinkedHashMap<>();
+    private final Map<String, List<String>> progsMap = new LinkedHashMap<>();
 
     public ProgLang(String nazwaPliku) throws IOException {
         List<String> lines = Files.readAllLines(Paths.get(nazwaPliku));
         for (String line : lines) {
             String[] parts = line.split("\\t");
             String language = parts[0];
-
+            
             List<String> programmers = Arrays.stream(parts)
                                              .skip(1)
                                              .distinct()
@@ -34,7 +32,7 @@ public class ProgLang {
         return langsMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> new ArrayList<>(e.getValue()),
+                        e -> new ArrayList<>(e.getValue()), 
                         (e1, e2) -> e1,
                         LinkedHashMap::new
                 ));
@@ -45,7 +43,7 @@ public class ProgLang {
         return progsMap.entrySet().stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        e -> new ArrayList<>(e.getValue()),
+                        e -> new ArrayList<>(e.getValue()), 
                         (e1, e2) -> e1,
                         LinkedHashMap::new
                 ));
@@ -58,7 +56,6 @@ public class ProgLang {
                 .thenComparing(Map.Entry::getKey));
     }
 
-
     public Map<String, List<String>> getProgsMapSortedByNumOfLangs() {
         return sorted(progsMap, Comparator
                 .<Map.Entry<String, List<String>>>comparingInt(e -> -e.getValue().size())
@@ -69,7 +66,6 @@ public class ProgLang {
     public Map<String, List<String>> getProgsMapForNumOfLangsGreaterThan(int n) {
         return filtered(progsMap, entry -> entry.getValue().size() > n);
     }
-
 
     private <K, V> Map<K, V> sorted(Map<K, V> map, Comparator<Map.Entry<K, V>> comparator) {
         return map.entrySet().stream()
@@ -82,8 +78,7 @@ public class ProgLang {
                 ));
     }
 
-
-    private <K, V> Map<K, V> filtered(Map<K, V> map, Predicate<Map.Entry<K, V>> predicate) {
+    private <K, V> Map<K, V> filtered(Map<K, V> map, java.util.function.Predicate<Map.Entry<K, V>> predicate) {
         return map.entrySet().stream()
                 .filter(predicate)
                 .collect(Collectors.toMap(
